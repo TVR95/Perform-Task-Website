@@ -1,0 +1,159 @@
+window.customElements.define('repos-custom', 
+    class extends HTMLElement {
+
+        constructor() {
+            super();
+
+            this.userName = this.getAttribute('data-user');
+            this.dateAfter = new Date(`${this.getAttribute('data-update')}T00:00:00Z`);
+            this.repoDiv = null;
+            this.userDiv = null;
+            this.dataUserTag = null;
+            this.dataUserText = null;
+            this.repoTableDiv = null;
+
+            this.createRepoContainer('div', 'repo');
+            this.createUsername('div', 'repo__username', 'p', `https://api.github.com/users/${this.userName}`);
+            this.createUserRepos();
+            this.createRepoTable('div','repo__table');
+            this.createUserRepos('div', 'repo__table__row', 'h5', `https://api.github.com/users/${this.userName}/repos`);
+        }
+
+        /**
+         * Class creates container for username and repositories' information
+         * @param {string} element - Name of HTML tag
+         * @param {string} className - Name of tag's CSS class
+         */
+        createRepoContainer(element, className) {
+            this.repoDiv = document.createElement(element);
+            this.repoDiv.className = className;
+            this.appendChild(this.repoDiv);
+        }
+
+        /**
+         * Class creates div that containes username and fetching data from github API that contains username
+         * @param {string} element - Name of HTML tag that contains username tag (example 'div')
+         * @param {string} className - Name of tag's CSS class
+         * @param {string} userElement - Name of username tag (example 'p' 'h5' etc.)
+         * @param {string} url - url from we will be fetchin data
+         * @property {json} fetchUserName - method fetches data, returns result in json and creates text node with user's name
+         */
+        createUsername(element, className, userElement, url) {
+            this.userDiv = document.createElement(element);
+            this.userDiv.className = className;
+            this.repoDiv.appendChild(this.userDiv);
+            this.dataUserTag = document.createElement(userElement);
+            const fetchUserName = async () => {
+                await fetch(url).then(result => {
+                    return result.json();
+                }).then(result => {
+                    // checking if account has a name. If not set a login as a name
+                    if(result.name === null)
+                        this.dataUserText = document.createTextNode(result.login);
+                    else
+                        this.dataUserText = document.createTextNode(result.name);
+                    this.dataUserTag.appendChild(this.dataUserText);
+                    this.userDiv.appendChild(this.dataUserTag); 
+                }).catch(() => {
+                    this.dataUserText = document.createTextNode('no data');
+                    this.dataUserTag.appendChild(this.dataUserText);
+                    this.userDiv.appendChild(this.dataUserTag); 
+                })
+            }
+            fetchUserName();
+        }
+
+        /**
+         * Class creates div that contains table rows
+         * @param {string} element - Name of HTML tag that contains table's rows(example 'div')
+         * @param {string} className - Name of tag's CSS class
+         */
+        createRepoTable(element, className) {
+            this.repoTableDiv = document.createElement(element);
+            this.repoTableDiv.className = className;
+            this.repoDiv.appendChild(this.repoTableDiv);            
+        }
+
+        /**
+         * Class fetches user's repos and creates table's rows
+         * @param {string} tag - Name of HTML that that contains what in the row
+         * @param {string} className - Name of tag's CSS class
+         * @param {string} textElement - Name of tag that contains text (ex. 'h1', 'h2', 'p' etc.)
+         * @param {string} url - url from we fetch repos
+         */
+        createUserRepos(tag, className, textElement, url) {
+            // printing available repos
+            const fetchRepos = async () => {
+                await fetch(url).then(result => {
+                    return result.json();
+                }).then(result => {
+                    result.map((element) => {
+                        const updateDate = new Date(element.updated_at);
+
+                        if(updateDate > this.dateAfter){
+                            const tableRowName = document.createElement(tag);
+                            tableRowName.className = className;
+                            this.repoTableDiv.appendChild(tableRowName);
+
+                            const repoNameH5 = document.createElement(textElement);
+                            const repoNameText = document.createTextNode('Repositorium Name:');
+                            repoNameH5.appendChild(repoNameText);
+                            tableRowName.appendChild(repoNameH5);
+
+                            const repoNameFetchH5 = document.createElement(textElement);
+                            const repoNameFetchText = document.createTextNode(element.name);
+                            repoNameFetchH5.appendChild(repoNameFetchText);
+                            tableRowName.appendChild(repoNameFetchH5);
+
+                            const tableRowRepoDesc = document.createElement(tag);
+                            tableRowRepoDesc.className = className;
+                            this.repoTableDiv.appendChild(tableRowRepoDesc);
+
+                            const repoDescH5 = document.createElement(textElement);
+                            const repoDescText = document.createTextNode('Repositorium Description:');
+                            repoDescH5.appendChild(repoDescText);
+                            tableRowRepoDesc.appendChild(repoDescH5);
+
+                            const repoDescFetchH5 = document.createElement(textElement);
+                            const repoDescFetchText = document.createTextNode(element.description);
+                            repoDescFetchH5.appendChild(repoDescFetchText);
+                            tableRowRepoDesc.appendChild(repoDescFetchH5);
+
+                            const tableRowLastUpdate = document.createElement(tag);
+                            tableRowLastUpdate.className = className;
+                            this.repoTableDiv.appendChild(tableRowLastUpdate);
+
+                            const repoLastUpdateH5 = document.createElement(textElement);
+                            const repoLastUpdateText = document.createTextNode('Last Update:');
+                            repoLastUpdateH5.appendChild(repoLastUpdateText);
+                            tableRowLastUpdate.appendChild(repoLastUpdateH5);
+
+                            const repoLastUpdateFetchH5 = document.createElement(textElement);
+                            const repoLastUpdateFetchText = document.createTextNode(element.updated_at);
+                            repoLastUpdateFetchH5.appendChild(repoLastUpdateFetchText);
+                            tableRowLastUpdate.appendChild(repoLastUpdateFetchH5);
+
+                            const tableRowLink = document.createElement(tag);
+                            tableRowLink.className = className;
+                            this.repoTableDiv.appendChild(tableRowLink);
+
+                            const repoLinkH5 = document.createElement(textElement);
+                            const repoLinkText = document.createTextNode('Link:');
+                            repoLinkH5.appendChild(repoLinkText);
+                            tableRowLink.appendChild(repoLinkH5);
+
+                            const repoLinkFetcha = document.createElement('a');
+                            repoLinkFetcha.setAttribute('href', element.html_url);
+                            const repoLinkFetchText = document.createTextNode(element.html_url);
+                            repoLinkFetcha.appendChild(repoLinkFetchText);
+                            tableRowLink.appendChild(repoLinkFetcha);
+                        }
+                    });
+                }).catch(() => {
+                    // catching undefined parameters
+                })
+            }
+            fetchRepos();
+        }
+    }
+);

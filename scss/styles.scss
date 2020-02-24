@@ -1,0 +1,67 @@
+@import 'config';
+
+body {
+    background-color: $primary-color;
+    color: set-text-color($primary-color);
+    height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1;
+}
+
+a {
+    font-size: 0.9rem;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 400;
+}
+
+header {
+    background-color: $secondary-color;
+    border-bottom: solid white 0.1rem;
+    padding-top: 1rem;
+    height: 4rem;
+    width: 100%;
+
+    h2 {
+        text-align: center;
+    }
+}
+
+footer {
+    background-color: $secondary-color;
+    border-top: solid white 0.1rem;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    text-align: center;
+}
+
+.repos__container {
+    margin: 3rem;
+    width: 100%;
+}
+
+.repo {
+    background-color: white;
+    border: solid $secondary-color 0.3rem;
+    margin: 3rem auto;
+    padding: 3rem;
+    width: 60%;
+
+    &__username {
+        border-bottom: solid $primary-color 1px;
+        text-align: center;
+    }
+
+    &__table {
+        margin-top: 3rem;
+        &__row {
+            margin-top: 1rem;
+
+            h5 {
+                display: inline;
+                margin-right: 1rem;
+            }
+        }
+    }
+}
